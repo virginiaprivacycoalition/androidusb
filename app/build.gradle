@@ -13,7 +13,7 @@ android {
         minSdk 26
         targetSdk 30
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,17 +58,9 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.virginiaprivacy.androidusb'
                 artifactId = 'androidusb'
-                version = '1.0.2'
+                version = '1.0.3'
             }
-            // Creates a Maven publication called “debug”.
-            debug(MavenPublication) {
-                // Applies the component for the debug build variant.
-                from components.debug
 
-                groupId = 'com.virginiaprivacy.androidusb'
-                artifactId = 'androidusb-debug'
-                version = '1.0.2'
-            }
         }
     }
 }

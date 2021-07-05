@@ -29,19 +29,19 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 }
 
 dependencies {
     implementation 'com.github.virginiaprivacycoalition:sdr:0.0.8'
-    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
     implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'com.google.android.material:material:1.4.0'
     testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    implementation "androidx.core:core-ktx:+"
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation "androidx.core:core-ktx:1.6.0"
 }
 
 
@@ -58,7 +58,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.virginiaprivacy.androidusb'
                 artifactId = 'androidusb'
-                version = '1.0.1'
+                version = '1.0.2'
             }
             // Creates a Maven publication called “debug”.
             debug(MavenPublication) {
@@ -67,7 +67,7 @@ afterEvaluate {
 
                 groupId = 'com.virginiaprivacy.androidusb'
                 artifactId = 'androidusb-debug'
-                version = '1.0.1'
+                version = '1.0.2'
             }
         }
     }

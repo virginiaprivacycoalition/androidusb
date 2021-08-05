@@ -27,7 +27,7 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 }
 
@@ -57,11 +57,8 @@ afterEvaluate {
                 groupId = 'com.virginiaprivacy.androidusb'
                 artifactId = 'androidusb'
                 version = '1.0.5'
+
             }
-            // Creates a Maven publication called “debug”.
-            debug(MavenPublication) {
-                // Applies the component for the debug build variant.
-                from components.debug
 
                 groupId = 'com.virginiaprivacy.androidusb'
                 artifactId = 'androidusb-debug'

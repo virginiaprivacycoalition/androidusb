@@ -6,8 +6,8 @@ import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.hardware.usb.UsbRequest
 import com.virginiaprivacy.drivers.sdr.usb.UsbIFace
-import java.io.IOException
 import java.nio.ByteBuffer
+import java.util.concurrent.ArrayBlockingQueue
 
 class AndroidUsbInterface(
     private val applicationContext: Context,
@@ -39,7 +39,7 @@ class AndroidUsbInterface(
         endpoint1
     }
 
-    private val transferRequests = mutableMapOf<Int, UsbRequest>()
+    private val requestQueue = ArrayBlockingQueue<UsbRequest>(12)
 
     override val productName: String
         get() = device.productName ?: ""
@@ -47,8 +47,6 @@ class AndroidUsbInterface(
         get() = device.serialNumber ?: ""
     override val manufacturerName: String
         get() = device.manufacturerName ?: ""
-
-    private val bufferArray: MutableMap<Int, Pair<UsbRequest, ByteBuffer>> = mutableMapOf()
 
     override fun controlTransfer(
         direction: Int,
@@ -68,31 +66,19 @@ class AndroidUsbInterface(
         val request = UsbRequest()
         request.clientData = transferIndex
         request.initialize(connection, endpoint)
-        bufferArray[transferIndex] = request to byteBuffer
+        requestQueue.put(request)
     }
 
-    override fun submitBulkTransfer(transferIndex: Int) {
-        if (bufferArray.containsKey(transferIndex)) {
-            bufferArray[transferIndex]?.run {
-                first.queue(second)
-            }
-        } else {
-            throw NullPointerException("Invalid transfer index of $transferIndex." +
-                    " Use a valid index: ${bufferArray.keys}")
-        }
+    override fun submitBulkTransfer(buffer: ByteBuffer) {
+        val request = requestQueue.take()
+        request.queue(buffer)
     }
 
-    override fun waitForTransferResult(): ByteBuffer {
+    override fun waitForTransferResult(): Int {
         val request = connection.requestWait(300)
-        if (connection == null || request == null) {
-            throw IOException("Could not get a request that was enqueued by this interface.")
-        }
-        if (request.clientData is Int && request.clientData != null) {
-            bufferArray[request.clientData as Int]?.let {
-                return it.second
-            }
-        }
-        throw IOException("Could not get a request that was enqueued by this interface.")
+        val i = request.clientData as Int
+        requestQueue.put(request)
+        return i
 
     }
 
@@ -101,7 +87,8 @@ class AndroidUsbInterface(
     }
 
     override fun releaseUsbDevice() {
-        transferRequests.values.forEach {
+        requestQueue.forEach {
+            it.cancel()
             it.close()
         }
         connection.releaseInterface(usbInterface)
@@ -109,8 +96,9 @@ class AndroidUsbInterface(
     }
 
     override fun shutdown() {
-        transferRequests.values.forEach {
+        requestQueue.forEach {
             it.cancel()
+            it.close()
         }
         connection.releaseInterface(usbInterface)
         connection.close()

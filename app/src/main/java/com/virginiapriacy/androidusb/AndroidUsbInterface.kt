@@ -62,19 +62,19 @@ class AndroidUsbInterface(
         }
     }
 
-    override fun prepareNewBulkTransfer(transferIndex: Int, byteBuffer: ByteBuffer) {
+    override suspend fun prepareNewBulkTransfer(transferIndex: Int, byteBuffer: ByteBuffer) {
         val request = UsbRequest()
         request.clientData = transferIndex
         request.initialize(connection, endpoint)
         requestQueue.put(request)
     }
 
-    override fun submitBulkTransfer(buffer: ByteBuffer) {
+    override suspend fun submitBulkTransfer(buffer: ByteBuffer) {
         val request = requestQueue.take()
         request.queue(buffer)
     }
 
-    override fun waitForTransferResult(): Int {
+    override suspend fun waitForTransferResult(): Int {
         val request = connection.requestWait(300)
         val i = request.clientData as Int
         requestQueue.put(request)

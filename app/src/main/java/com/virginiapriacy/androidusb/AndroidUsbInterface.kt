@@ -45,6 +45,11 @@ class AndroidUsbInterface(
         get() = device.productName ?: ""
     override val serialNumber: String
         get() = device.serialNumber ?: ""
+
+    override suspend fun bulkTransfer(bytes: ByteArray, length: Int): Int {
+        return connection.bulkTransfer(endpoint, bytes, length, 0)
+    }
+
     override val manufacturerName: String
         get() = device.manufacturerName ?: ""
 
@@ -62,6 +67,8 @@ class AndroidUsbInterface(
         }
     }
 
+
+
     override suspend fun prepareNewBulkTransfer(transferIndex: Int, byteBuffer: ByteBuffer) {
         val request = UsbRequest()
         request.clientData = transferIndex
@@ -75,7 +82,7 @@ class AndroidUsbInterface(
     }
 
     override suspend fun waitForTransferResult(): Int {
-        val request = connection.requestWait(300)
+        val request = connection.requestWait()
         val i = request.clientData as Int
         requestQueue.put(request)
         return i
